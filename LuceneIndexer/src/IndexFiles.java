@@ -239,7 +239,7 @@ public class IndexFiles {
 					if (file.getName().endsWith(".txt"))
 						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(fis, "UTF-8"))));
 					if (file.getName().endsWith(".html"))
-						doc.add(new TextField("contents", html2String(fis), Field.Store.NO));
+						doc.add(new TextField("contents", html2String(fis), Field.Store.YES));
 
 					if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
 						// New index, so we just add the document (no old
