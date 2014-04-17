@@ -21,24 +21,30 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.StringTokenizer;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 /** Simple command-line based search demo. */
 public class SearchFiles {
 
-	private static final String INDEX_PATH = "C:\\index\\";
+	static final String INDEX_PATH = "C:\\index\\";
+	static final String DICTIONARY_PATH = "C:\\spellchecker\\";
 
 	private SearchFiles() {
 	}
@@ -119,6 +125,7 @@ public class SearchFiles {
 			}
 
 			Query query = parser.parse(line);
+			System.out.println(query.toString());
 			System.out.println("Searching for: " + query.toString(field));
 
 			if (repeat > 0) { // repeat & time as benchmark
@@ -131,6 +138,14 @@ public class SearchFiles {
 						+ "ms");
 			}
 
+			// Return possible suggestions of a more correct query
+			String[] suggestions = getSuggestions(line, 5, (float) 0.1);
+			if (suggestions != null && suggestions.length > 0) {
+				for (String word : suggestions) {
+					System.out.println("Did you mean:" + word);
+				}
+			}
+
 			doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
 
 			if (queryString != null) {
@@ -138,6 +153,32 @@ public class SearchFiles {
 			}
 		}
 		reader.close();
+	}
+
+	private static String[] getSuggestions(String queryString, int numberOfSuggestions, float accuracy) {
+		try {
+			Directory dictionaryDir = FSDirectory.open(new File(DICTIONARY_PATH));
+			SpellChecker spellChecker = new SpellChecker(dictionaryDir);
+			String[] similarWords = spellChecker.suggestSimilar(queryString, numberOfSuggestions, accuracy);
+			spellChecker.close();
+			return similarWords;
+		} catch (final Exception e) {
+			return new String[0];
+		}
+	}
+	
+	private static Query getSuggestionQuery(Query query, QueryParser parser, int numberOfSuggestions, float accuracy) throws ParseException {
+			
+		StringTokenizer tokenizer = new StringTokenizer(query.toString());
+		StringBuilder builder = new StringBuilder();
+				
+		while (tokenizer.hasMoreTokens()) {
+			String word = tokenizer.nextToken();
+			String[] results = getSuggestions(word, numberOfSuggestions, accuracy);
+			builder.append(results[0]+" ");						
+		}
+			
+		return parser.parse(builder.toString());			
 	}
 
 	/**
@@ -151,24 +192,24 @@ public class SearchFiles {
 	 * collected.
 	 * 
 	 */
-	public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, int hitsPerPage, boolean raw, boolean interactive) throws IOException {
+	public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, int hitsPerPage, boolean raw,	boolean interactive) throws IOException {
 
 		// Collect enough docs to show 5 pages
 		TopDocs results = searcher.search(query, 5 * hitsPerPage);
 		ScoreDoc[] hits = results.scoreDocs;
-
+		
 		int numTotalHits = results.totalHits;
 		System.out.println(numTotalHits + " total matching documents");
-
+		
 		int start = 0;
 		int end = Math.min(numTotalHits, hitsPerPage);
 
 		while (true) {
+			
 			if (end > hits.length) {
-				System.out
-						.println("Only results 1 - " + hits.length + " of "
-								+ numTotalHits
-								+ " total matching documents collected.");
+				System.out.println("Only results 1 - " + hits.length + " of "
+									+ numTotalHits
+									+ " total matching documents collected.");
 				System.out.println("Collect more (y/n) ?");
 				String line = in.readLine();
 				if (line.length() == 0 || line.charAt(0) == 'n') {
@@ -177,13 +218,12 @@ public class SearchFiles {
 
 				hits = searcher.search(query, numTotalHits).scoreDocs;
 			}
-
+			
 			end = Math.min(hits.length, start + hitsPerPage);
 
 			for (int i = start; i < end; i++) {
 				if (raw) { // output raw format
-					System.out.println("doc=" + hits[i].doc + " score="
-							+ hits[i].score);
+					System.out.println("doc=" + hits[i].doc + " score=" + hits[i].score);
 					continue;
 				}
 
@@ -196,8 +236,7 @@ public class SearchFiles {
 						System.out.println("   Title: " + doc.get("title"));
 					}
 				} else {
-					System.out.println((i + 1) + ". "
-							+ "No path for this document");
+					System.out.println((i + 1) + ". " + "No path for this document");
 				}
 
 			}

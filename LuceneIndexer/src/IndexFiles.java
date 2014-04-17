@@ -22,10 +22,15 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.spell.Dictionary;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
@@ -44,6 +49,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
@@ -55,7 +61,8 @@ import java.util.Date;
 public class IndexFiles {
 	
 	static final String INDEX_PATH = "C:\\index\\";
-	static final String DOCS_PATH = "D:\\docs\\";
+	static final String DICTIONARY_PATH = "C:\\spellchecker\\";
+	static final String DOCS_PATH = "D:\\docs\\";	
 
 	private IndexFiles() {
 	}
@@ -134,7 +141,11 @@ public class IndexFiles {
 			//
 			// writer.forceMerge(1);
 			writer.close();
-
+			
+			System.out.print("Indexing complete. Creating dictionary...");
+			createDictionary(analyzer);
+			System.out.println("done.");
+			
 			Date end = new Date();
 			System.out.println(end.getTime() - start.getTime() + " total milliseconds");
 
@@ -216,7 +227,7 @@ public class IndexFiles {
 					// For example the long value 2011021714 would mean
 					// February 17, 2011, 2-3 PM.
 					doc.add(new LongField("modified", file.lastModified(), Field.Store.NO));
-
+					
 					// Add the contents of the file to a field named "contents".
 					// Specify a Reader,
 					// so that the text of the file is tokenized and indexed,
@@ -225,8 +236,10 @@ public class IndexFiles {
 					// encoding.
 					// If that's not the case searching for special characters
 					// will fail.
-//					doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(fis, "UTF-8"))));
-					doc.add(new TextField("contents", html2String(fis), Field.Store.NO));
+					if (file.getName().endsWith(".txt"))
+						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(fis, "UTF-8"))));
+					if (file.getName().endsWith(".html"))
+						doc.add(new TextField("contents", html2String(fis), Field.Store.NO));
 
 					if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
 						// New index, so we just add the document (no old
@@ -265,7 +278,20 @@ public class IndexFiles {
 			e.printStackTrace();
 		}
         return handler.toString();
-	}	
+	}
+	
+	private static void createDictionary(Analyzer analyzer) throws IOException {
+		Directory dictionaryDir = FSDirectory.open(new File(DICTIONARY_PATH)); 
+		Directory indexDir = FSDirectory.open(new File(INDEX_PATH));
+		
+		IndexReader reader = DirectoryReader.open(indexDir);
+		Dictionary dictionary = new LuceneDictionary(reader, "contents");
+		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_47, analyzer);
+		
+		SpellChecker spellChecker = new SpellChecker(dictionaryDir);
+		spellChecker.indexDictionary(dictionary, iwc, false	);
+		spellChecker.close();		
+	}
 }
 
 
