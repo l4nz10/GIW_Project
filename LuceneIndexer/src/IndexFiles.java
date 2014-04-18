@@ -41,6 +41,7 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlParser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.jsoup.Jsoup;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
@@ -54,7 +55,6 @@ import java.util.Date;
 
 /**
  * Index all text files under a directory.
- * <p>
  * This is a command-line application demonstrating simple Lucene indexing. Run
  * it with no command-line arguments for usage information.
  */
@@ -213,7 +213,8 @@ public class IndexFiles {
 					// or positional information:
 					Field pathField = new StringField("path", file.getPath(), Field.Store.YES);
 					doc.add(pathField);
-
+					Field relativePathField = new StringField("shortPath", getRelativePath(file.getPath()), Field.Store.YES);
+					doc.add(relativePathField);
 					// Add the last modified date of the file a field named
 					// "modified".
 					// Use a LongField that is indexed (i.e. efficiently
@@ -238,9 +239,10 @@ public class IndexFiles {
 					// will fail.
 					if (file.getName().endsWith(".txt"))
 						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(fis, "UTF-8"))));
-					if (file.getName().endsWith(".html"))
+					if (file.getName().endsWith(".html")) {
 						doc.add(new TextField("contents", html2String(fis), Field.Store.YES));
-
+						doc.add(new StringField("title", getHTMLTitle(file), Field.Store.YES));
+					}
 					if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
 						// New index, so we just add the document (no old
 						// document can be there):
@@ -268,13 +270,21 @@ public class IndexFiles {
 		}
 	}
 	
+	private static String getHTMLTitle(File file) throws IOException {
+		return Jsoup.parse(file, "UTF-8","").getElementById("title").toString(); 
+	}
+
+	private static String getRelativePath(String path) {
+		int startCut = path.indexOf("docs");
+		return path.substring(startCut);
+	}
+
 	private static String html2String(FileInputStream fis) {
 		BodyContentHandler handler = new BodyContentHandler();
         Metadata metadata = new Metadata();
         try {
 			new HtmlParser().parse(fis, handler, metadata, new ParseContext());
 		} catch (IOException | SAXException | TikaException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         return handler.toString();
