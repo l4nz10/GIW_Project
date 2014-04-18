@@ -1,12 +1,14 @@
 GIW_Project
 ===========
 
-TO DO:
+## TO DO:
 
-Funzione Did you mean...
+###~~Funzione Did you mean...~~
 
-Possibile sezione di ricerche correlate
+###~~Snippets dei risultati~~
 
-Anteprima del risultato con score più alto
+###Possibile sezione di ricerche correlate
+
+###Anteprima del risultato con score più alto
 
 
