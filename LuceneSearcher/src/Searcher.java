@@ -77,33 +77,32 @@ public class Searcher {
 			}
 
 			try {
-
 				Query query = parser.parse(line);
 				String readableQuery = query.toString(FIELD);
 				System.out.println("Searching...");
 
-				SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
-				Highlighter highlighter = new Highlighter(htmlFormatter, new QueryScorer(query));
-
 				TopDocs results = searcher.search(query, 5 * hitsPerPage);
 				ScoreDoc[] hits = results.scoreDocs;
-				if (results.scoreDocs.length == 0
-						|| results.getMaxScore() <= SCORE_THRESHOLD) {
+				if (results.scoreDocs.length == 0 || results.getMaxScore() <= SCORE_THRESHOLD) {
 					Query newQuery = suggestQuery(query, FIELD);
 					TopDocs newResults = searcher.search(newQuery,
 							5 * hitsPerPage);
 					if (results.totalHits < newResults.totalHits) {
 						hits = newResults.scoreDocs;
+						query = newQuery;
 						readableQuery = newQuery.toString(FIELD);
+						
 					}
 				}
-
+				
 				if (hits.length == 0)
-					System.out.println("No results found for:\t"
-							+ readableQuery);
+					System.out.println("No results found for:\t" + readableQuery);
 				else
-					System.out.println(hits.length + " results found for:\t"
-							+ readableQuery);
+					System.out.println(hits.length + " results found for:\t" + readableQuery);
+				
+				SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
+				Highlighter highlighter = new Highlighter(htmlFormatter, new QueryScorer(query));
+				
 				resultsListerAndNavigator(in, hits, hitsPerPage, highlighter);
 
 			} catch (ParseException e) {
@@ -113,11 +112,7 @@ public class Searcher {
 	}
 
 	private static void resultsListerAndNavigator(BufferedReader in, ScoreDoc[] hits, int hitsPerPage, Highlighter highlighter) throws Exception {
-		for (int i = 0; i<100; i++) {
 		
-		
-		
-		}
 		int numTotalHits = (hits == null ? 0 : hits.length);
 
 		int start = 0;
@@ -165,8 +160,7 @@ public class Searcher {
 					if (start + hitsPerPage < numTotalHits) {
 						System.out.print("(n)ext page, ");
 					}
-					System.out
-							.println("(q)uit or enter number to jump to a page.");
+					System.out.println("(q)uit or enter number to jump to a page.");
 
 					String line = in.readLine();
 					if (line.length() == 0 || line.charAt(0) == 'q') {
@@ -208,22 +202,21 @@ public class Searcher {
 
 	// Suggest a possible more optimal query for the search,
 	// trying to replace the words inside the query that are not relevant.
-	private static Query suggestQuery(Query query, String field)
-			throws ParseException, IOException {
+	private static Query suggestQuery(Query query, String field) throws ParseException, IOException {
 
 		StringTokenizer tokenizer = new StringTokenizer(query.toString(field));
 		String word;
 		StringBuilder builder = new StringBuilder();
-
+		String[] modifiers = new String[]  { "+", "-", "\"" };
+		
 		while (tokenizer.hasMoreTokens()) {
-			char headModifier = '\u0000';
-			char tailQuotMark = '\u0000';
+			Character headModifier = null;
+			Character tailQuotMark = null;
 			word = tokenizer.nextToken();
 			if (word.equals("AND") || word.equals("OR") || word.equals("NOT")) {
 				builder.append(word);
 			} else {
-				if (StringUtils.startsWithAny(word, new String[] { "+", "-",
-						"\"" })) {
+				if (StringUtils.startsWithAny(word, modifiers)) {
 					headModifier = word.charAt(0);
 					word = word.substring(1, word.length());
 				}
@@ -232,10 +225,10 @@ public class Searcher {
 					word = word.substring(0, word.length() - 1);
 				}
 				word = findMoreRelevantWord(word);
-				if (headModifier != '\u0000')
+				if (headModifier != null)
 					builder.append(headModifier);
 				builder.append(word);
-				if (tailQuotMark != '\u0000')
+				if (tailQuotMark != null)
 					builder.append(tailQuotMark);
 				builder.append(" ");
 			}
