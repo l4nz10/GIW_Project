@@ -10,7 +10,7 @@
 <head>
 <meta charset="utf-8">
 <title>Progetto GIW</title>
-<!-- <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen"> -->
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<div id="header">NOMEGRUPPO GIW</div>
@@ -37,7 +37,7 @@
 	</div>
 
 	<div id="footer">FOOTER DEL GRUPPO GIW</div>
-	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>-->
-	<!--<script src="bootstrap/js/bootstrap.min.js"></script>-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
