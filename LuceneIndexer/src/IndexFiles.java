@@ -64,6 +64,10 @@ public class IndexFiles {
 	static final String DICTIONARY_PATH = "C:\\spellchecker\\";
 	static final String DOCS_PATH = "D:\\docs\\";	
 
+//	static final String INDEX_PATH = "D:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\ProgettoGIW\\lucene\\index\\";
+//	static final String DICTIONARY_PATH = "D:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\ProgettoGIW\\lucene\\spellchecker\\";
+//	static final String DOCS_PATH = "D:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\ProgettoGIW\\docs\\";
+	
 	private IndexFiles() {
 	}
 
@@ -271,7 +275,7 @@ public class IndexFiles {
 	}
 	
 	private static String getHTMLTitle(File file) throws IOException {
-		return Jsoup.parse(file, "UTF-8","").getElementById("title").toString(); 
+		return Jsoup.parse(file, "UTF-8","").title();
 	}
 
 	private static String getRelativePath(String path) {
