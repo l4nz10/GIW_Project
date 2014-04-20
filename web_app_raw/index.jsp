@@ -8,36 +8,24 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Progetto GIW</title>
-<!-- <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen"> -->
+	<meta charset="utf-8">
+	<title>Rooma 3 search engine</title>
+	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="css/index.css" rel="stylesheet">
 </head>
 <body>
-	<div id="header">NOMEGRUPPO GIW</div>
-	<div id="menu">
-		FORM DI ACQUISIZIONE PAROLE QUERY
-
-		<form method="post" action="ProcessaQuery">
-			<fieldset class="textbox">
-				<label class="query"> <span>Cosa vuoi cercare</span> <input
-					id="query" name="query" value="" type="text" autocomplete="on"
-					placeholder="query">
-				</label>
-					<button class="btn btn-large" type="submit">Cerca</button>
-				<!-- <button class="submit button" type="submit">Ricerca</button> -->
-				<!-- <input type="submit" value="Invia" name="submit" id="submit" /> -->
-				<p>
-					<a class="help" href="help.jsp">Guida su come utilizzare il
-						motore di ricerca</a>
-				</p>
-
-			</fieldset>
-		</form>
-
-	</div>
-
-	<div id="footer">FOOTER DEL GRUPPO GIW</div>
-	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>-->
-	<!--<script src="bootstrap/js/bootstrap.min.js"></script>-->
+	<div class="container">
+      <div class="jumbotron">
+        <img id="img_main"src="media/index_img.png" width="450">
+        <div id="menu">
+			<form method="post" action="ProcessaQuery">
+				<p><input id="query" name="query" type="text" class="form-control" autocomplete="on" placeholder="query"></p>
+				<p><button class="btn btn-primary btn-sm" type="submit">Cerca</button></p>
+			</form>
+		</div>
+      </div>
+     </div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
