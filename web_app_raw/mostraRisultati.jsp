@@ -21,8 +21,9 @@
 			<h2>No results for: <%=ros.getQuery() %></h2>
 		<% } else  { %>
 		<%		if (ros.isSuggestedSearch()) {%>
+		<%			String ref = "ProcessaQueryForced?query="+String2URLFriendly.transform(ros.getQuery());%>
 					<h2>Maybe did you mean: <%=ros.getSuggestedQuery()%></h2>
-					<h3>instead of: <%=ros.getQuery() %></h3>
+					<h3>instead of: <a href=<%=ref%>> <%=ros.getQuery() %> </a></h3>
 				<%} else { %>
 					<h2>Search results for: <%=ros.getQuery()%></h2>
 		<% 		  } %>
