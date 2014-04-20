@@ -14,50 +14,48 @@
 		<link href="css/mostraRisultati.css" rel="stylesheet">
 	</head>
 	<body>
-		<div id="results_area" class="col-md-7">
-			<%@ page import="javax.servlet.*, java.util.*, resource.*"%>
-			<% ResultsOfSearch ros = (ResultsOfSearch) session.getAttribute("risultato"); %>
-			<% int numeroPagina = (Integer) session.getAttribute("paginaCorrente"); %>
-			<% if (ros.thereIsNoResult()) { %>
-				<h2>No results for: <%=ros.getQuery() %></h2>
-			<% } else  { %>
-			<%		if (ros.isSuggestedSearch()) {%>
-			<div id="results-message" class="col-md-12">
-			<%			String ref = "ProcessaQueryForced?query="+String2URLFriendly.transform(ros.getQuery());%>
-
+			<%@page import="javax.servlet.*, java.util.*, resource.*, java.net.*"					%>
+			<% ResultsOfSearch ros = (ResultsOfSearch) session.getAttribute("risultato");			%>
+			<% int numeroPagina = (Integer) session.getAttribute("paginaCorrente"); 				%>
+			<div id="message-area" class="col-md-12">
+				<div id="message" class="col-md-12">			
+			<% 		if (ros.thereIsNoResult() || ros == null) { 												%>
+					<h2>No results for: <%=ros.getQuery()%></h2>
+			<%		} else  {																					%>
+			<%			if (ros.isSuggestedSearch()) {															%>
+			<%			String ref = "search?query="+URLEncoder.encode(ros.getQuery(),"UTF-8")+"&forced=true";	%>
 						<h1>Maybe did you mean: <em><%=ros.getSuggestedQuery()%></em>. 
 							<small>
 								Or <em><a href=<%=ref%>><%=ros.getQuery() %></a></em> was correct?
 							</small>
 						</h1>
-						<!-- <h3>instead of: <a href=<%=ref%>> <%=ros.getQuery() %> </a></h3> -->
-					<%} else { %>
+			<%			} else {	%>
 						<h1>Search results for: <em><%=ros.getQuery()%></em></h1>
-			<% 		  } %>
-			</div>
-			<%	DocumentResult[][] docs = ros.getDocResArray(); %>				
-					<%	for (int i = 0; i < docs[numeroPagina].length ; i++) {	%>
-					<%		if (docs[numeroPagina][i] != null) {	%>
-					<div id="result">
-						<div id="result-title">
-							<a href="<%=docs[numeroPagina][i].getRelativePath()%>"><%=docs[numeroPagina][i].getTitle()%></a></dt>
-						</div>
-						<div id="result-highlights">
-							<%=docs[numeroPagina][i].getHighlights()%></dd>
-						</div>
-					</div>
-					<%
-							}
-						}
-					%>
-				<%	if (numeroPagina != 0) { %>
-				<a href="prev">Previous</a>
-				<% } %>
-				<p><%=numeroPagina + 1%></p>
-				<%	if (numeroPagina < docs.length-1) {	%>
-					<a href="next">Next</a>
-				<% }%>
-			<% } %>
+			<%			}			%>
+				</div>
+				<div id="results_area" class="col-md-7">
+			<%			DocumentResult[][] docs = ros.getDocResArray(); %>				
+			<%					for (int i = 0; i < docs[numeroPagina].length ; i++) {	%>
+			<%						if (docs[numeroPagina][i] != null) {				%>
+							<div id="result">
+								<div id="result-title">
+									<a href="<%=docs[numeroPagina][i].getRelativePath()%>"><%=docs[numeroPagina][i].getTitle()%></a>
+								</div>
+								<div id="result-highlights">
+									<%=docs[numeroPagina][i].getHighlights()%>
+								</div>
+							</div>
+			<%						}																								%>
+			<%					}																									%>
+			<%					if (numeroPagina != 0) { 																			%>
+						<a href="prev">Previous</a>
+			<%					}	 																								%>
+						<p><%=numeroPagina + 1%></p>
+			<%					if (numeroPagina < docs.length-1) {																	%>
+							<a href="next">Next</a>
+			<%					}																									%>
+			<%		} 																												%>
+				</div>
 		</div>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="bootstrap/js/bootstrap.min.js"></script>

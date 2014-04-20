@@ -18,7 +18,7 @@
       <div class="jumbotron">
         <img id="img_main" src="media/index_img.png" width="450">
         <div id="menu">
-			<form method="post" action="ProcessaQuery">
+			<form method="get" action="search">
 				<p><input id="query" name="query" type="text" class="form-control" autocomplete="on" placeholder="Enter a query!"></p>
 				<p><button class="btn btn-primary btn-sm" type="submit">Search</button></p>
 			</form>

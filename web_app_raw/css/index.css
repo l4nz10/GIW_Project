@@ -43,7 +43,11 @@ body {
 }
 
 #img_main {
-  padding-bottom: 30px;
+  padding-bottom: 20px;
+}
+
+#menu {
+  padding-top: 10px;
 }
 
 /* Main marketing message and sign up button */
