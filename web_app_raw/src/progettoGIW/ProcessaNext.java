@@ -11,17 +11,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.*;
 
 
+
 @WebServlet("/next")
+@SuppressWarnings("serial")
 public class ProcessaNext extends HttpServlet {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-    					throws IOException, ServletException {
-
-		String prossimaPagina = "/mostraRisultati";
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		String prossimaPagina = "/mostraRisultati.jsp";
 		ServletContext application  = getServletContext();
-		request.getSession().setAttribute("numeroPagina",((int)request.getSession().getAttribute("paginaCorrente")+1));
+		request.getSession().setAttribute("paginaCorrente",((int)request.getSession().getAttribute("paginaCorrente")+1));
 		RequestDispatcher rd = application.getRequestDispatcher(prossimaPagina);
 		rd.forward(request, response);
-	}
-	
+	}	
 }
