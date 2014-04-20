@@ -1,0 +1,25 @@
+/* space out the results area a little bit */
+body {
+	font-size: 200%;
+	background-color: #E8E8E8;
+}
+
+#results-message {
+	padding-bottom: 50px;
+}
+
+#result {
+	padding-bottom: 40px;
+}
+
+#result-title {
+	font-size: 110%;
+	font-weight: bold;
+	padding-bottom: 10px;
+}
+
+#results_area {
+	padding-left: 50px;
+	padding-top: 30px;
+	padding-bottom: 30px;	
+}

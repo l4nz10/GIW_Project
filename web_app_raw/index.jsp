@@ -16,11 +16,11 @@
 <body>
 	<div class="container">
       <div class="jumbotron">
-        <img id="img_main"src="media/index_img.png" width="450">
+        <img id="img_main" src="media/index_img.png" width="450">
         <div id="menu">
 			<form method="post" action="ProcessaQuery">
-				<p><input id="query" name="query" type="text" class="form-control" autocomplete="on" placeholder="query"></p>
-				<p><button class="btn btn-primary btn-sm" type="submit">Cerca</button></p>
+				<p><input id="query" name="query" type="text" class="form-control" autocomplete="on" placeholder="Enter a query!"></p>
+				<p><button class="btn btn-primary btn-sm" type="submit">Search</button></p>
 			</form>
 		</div>
       </div>

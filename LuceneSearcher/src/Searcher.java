@@ -100,15 +100,44 @@ public class Searcher {
 				else
 					System.out.println(hits.length + " results found for:\t" + readableQuery);
 				
-				SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
-				Highlighter highlighter = new Highlighter(htmlFormatter, new QueryScorer(query));
+				createDocumentsResulted(hits, query);
 				
-				resultsListerAndNavigator(in, hits, hitsPerPage, highlighter);
+				//resultsListerAndNavigator(in, hits, hitsPerPage, highlighter);
 
 			} catch (ParseException e) {
 				System.err.println("Incorrect Query");
 			}
 		}
+	}
+
+	private static DocumentResult[] createDocumentsResulted(ScoreDoc[] hits, Query query) throws IOException, InvalidTokenOffsetsException {
+		SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
+		Highlighter highlighter = new Highlighter(htmlFormatter, new QueryScorer(query));
+		DocumentResult[] docResArray = new DocumentResult[hits.length];
+		
+		for (int i = 0; i < hits.length; i++) {
+			DocumentResult docRes = new DocumentResult();
+			int docId = hits[i].doc;
+			Document doc = searcher.doc(docId);				
+			String shortPath = doc.get("shortPath");
+			if (shortPath != null) {
+				docRes.setRelativePath(shortPath);
+				String title = doc.get("title");
+				if (title != null) {
+					docRes.setTitle(title);
+				}
+				StringBuilder builder = new StringBuilder();
+				for (TextFragment frag : getHighlights(docId, highlighter))
+					if ((frag != null) && (frag.getScore() > 0)) {
+						String snippet = frag.toString().replaceAll("\\s+"," ");
+				        builder.append(snippet).append("...");
+					}
+				if (builder.length() != 0)
+					docRes.setHighlights(builder.toString());
+			}
+			docResArray[i] = docRes;
+		}
+		return docResArray;
 	}
 
 	private static void resultsListerAndNavigator(BufferedReader in, ScoreDoc[] hits, int hitsPerPage, Highlighter highlighter) throws Exception {
@@ -192,7 +221,7 @@ public class Searcher {
 		}
 	}
 	
-	private static TextFragment[] getHighlights(int docId, Highlighter highlighter) throws Exception {
+	private static TextFragment[] getHighlights(int docId, Highlighter highlighter) throws IOException, InvalidTokenOffsetsException {
 		Document doc = searcher.doc(docId);
 		String documentContent = doc.get(FIELD);
 		TokenStream tokenStream = TokenSources.getAnyTokenStream(searcher.getIndexReader(), docId, FIELD, analyzer);
