@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +13,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queries.mlt.MoreLikeThis;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -31,8 +33,8 @@ import org.apache.lucene.util.Version;
 
 public class Searcher {
 
-	private static final String INDEX_PATH = "C:\\index\\";
-	private static final String DICTIONARY_PATH = "C:\\spellchecker\\";
+	private static final String INDEX_PATH = "C:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\web_app_raw\\lucene\\index\\";
+	private static final String DICTIONARY_PATH = "C:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\web_app_raw\\lucene\\spellchecker\\";
 	private static final float SCORE_THRESHOLD = 0.5f;
 	private static final String FIELD = "contents";
 
@@ -83,7 +85,8 @@ public class Searcher {
 
 				TopDocs results = searcher.search(query, 5 * hitsPerPage);
 				ScoreDoc[] hits = results.scoreDocs;
-				if (results.scoreDocs.length == 0 || results.getMaxScore() <= SCORE_THRESHOLD) {
+				if (results.scoreDocs.length == 0
+						|| results.getMaxScore() <= SCORE_THRESHOLD) {
 					Query newQuery = suggestQuery(query, FIELD);
 					TopDocs newResults = searcher.search(newQuery,
 							5 * hitsPerPage);
@@ -91,18 +94,21 @@ public class Searcher {
 						hits = newResults.scoreDocs;
 						query = newQuery;
 						readableQuery = newQuery.toString(FIELD);
-						
+
 					}
 				}
-				
+
 				if (hits.length == 0)
-					System.out.println("No results found for:\t" + readableQuery);
+					System.out.println("No results found for:\t"
+							+ readableQuery);
 				else
-					System.out.println(hits.length + " results found for:\t" + readableQuery);
-				
+					System.out.println(hits.length + " results found for:\t"
+							+ readableQuery);
+
 				createDocumentsResulted(hits, query);
-				
-				//resultsListerAndNavigator(in, hits, hitsPerPage, highlighter);
+
+				// resultsListerAndNavigator(in, hits, hitsPerPage,
+				// highlighter);
 
 			} catch (ParseException e) {
 				System.err.println("Incorrect Query");
@@ -110,15 +116,18 @@ public class Searcher {
 		}
 	}
 
-	private static DocumentResult[] createDocumentsResulted(ScoreDoc[] hits, Query query) throws IOException, InvalidTokenOffsetsException {
+	private static DocumentResult[] createDocumentsResulted(ScoreDoc[] hits,
+			Query query) throws IOException, InvalidTokenOffsetsException {
 		SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
-		Highlighter highlighter = new Highlighter(htmlFormatter, new QueryScorer(query));
+		Highlighter highlighter = new Highlighter(htmlFormatter,
+				new QueryScorer(query));
 		DocumentResult[] docResArray = new DocumentResult[hits.length];
-		
+
 		for (int i = 0; i < hits.length; i++) {
 			DocumentResult docRes = new DocumentResult();
 			int docId = hits[i].doc;
-			Document doc = searcher.doc(docId);				
+			Document doc = searcher.doc(docId);
+
 			String shortPath = doc.get("shortPath");
 			if (shortPath != null) {
 				docRes.setRelativePath(shortPath);
@@ -129,19 +138,26 @@ public class Searcher {
 				StringBuilder builder = new StringBuilder();
 				for (TextFragment frag : getHighlights(docId, highlighter))
 					if ((frag != null) && (frag.getScore() > 0)) {
-						String snippet = frag.toString().replaceAll("\\s+"," ");
-				        builder.append(snippet).append("...");
+						String snippet = frag.toString()
+								.replaceAll("\\s+", " ");
+						builder.append(snippet).append("...");
 					}
 				if (builder.length() != 0)
 					docRes.setHighlights(builder.toString());
 			}
 			docResArray[i] = docRes;
 		}
+		int docId = hits[0].doc;
+		Document doc = searcher.doc(docId);
+		Reader target = doc.getField("contents").readerValue();
+		moreLikeThis(target, 10, docId);
 		return docResArray;
 	}
 
-	private static void resultsListerAndNavigator(BufferedReader in, ScoreDoc[] hits, int hitsPerPage, Highlighter highlighter) throws Exception {
-		
+	private static void resultsListerAndNavigator(BufferedReader in,
+			ScoreDoc[] hits, int hitsPerPage, Highlighter highlighter)
+			throws Exception {
+
 		int numTotalHits = (hits == null ? 0 : hits.length);
 
 		int start = 0;
@@ -149,12 +165,14 @@ public class Searcher {
 
 		while (true) {
 			end = Math.min(numTotalHits, start + hitsPerPage);
-			
-			//Ciclo principale che raccoglie il contenuto di ogni documento e lo
-			//manda in stampa. Viene usato Highlighter per mostrare snippets di testo.
+
+			// Ciclo principale che raccoglie il contenuto di ogni documento e
+			// lo
+			// manda in stampa. Viene usato Highlighter per mostrare snippets di
+			// testo.
 			for (int i = start; i < end; i++) {
 				int docId = hits[i].doc;
-				Document doc = searcher.doc(docId);				
+				Document doc = searcher.doc(docId);
 				String path = doc.get("path");
 				if (path != null) {
 					System.out.println((i + 1) + ". " + path);
@@ -164,14 +182,16 @@ public class Searcher {
 					}
 					for (TextFragment frag : getHighlights(docId, highlighter)) {
 						if ((frag != null) && (frag.getScore() > 0)) {
-							String snippet = frag.toString().replaceAll("\\s+"," ");
-					        System.out.print(snippet);
+							String snippet = frag.toString().replaceAll("\\s+",
+									" ");
+							System.out.print(snippet);
 							System.out.print("... ");
 						}
 					}
 					System.out.println();
 				} else {
-					System.out.println((i + 1) + ". " + "No path for this document");
+					System.out.println((i + 1) + ". "
+							+ "No path for this document");
 				}
 			}
 
@@ -189,7 +209,8 @@ public class Searcher {
 					if (start + hitsPerPage < numTotalHits) {
 						System.out.print("(n)ext page, ");
 					}
-					System.out.println("(q)uit or enter number to jump to a page.");
+					System.out
+							.println("(q)uit or enter number to jump to a page.");
 
 					String line = in.readLine();
 					if (line.length() == 0 || line.charAt(0) == 'q') {
@@ -220,24 +241,29 @@ public class Searcher {
 			}
 		}
 	}
-	
-	private static TextFragment[] getHighlights(int docId, Highlighter highlighter) throws IOException, InvalidTokenOffsetsException {
+
+	private static TextFragment[] getHighlights(int docId,
+			Highlighter highlighter) throws IOException,
+			InvalidTokenOffsetsException {
 		Document doc = searcher.doc(docId);
 		String documentContent = doc.get(FIELD);
-		TokenStream tokenStream = TokenSources.getAnyTokenStream(searcher.getIndexReader(), docId, FIELD, analyzer);
-		TextFragment[] fragments = highlighter.getBestTextFragments(tokenStream, documentContent, true, 10);
+		TokenStream tokenStream = TokenSources.getAnyTokenStream(
+				searcher.getIndexReader(), docId, FIELD, analyzer);
+		TextFragment[] fragments = highlighter.getBestTextFragments(
+				tokenStream, documentContent, true, 10);
 		return fragments;
 	}
 
 	// Suggest a possible more optimal query for the search,
 	// trying to replace the words inside the query that are not relevant.
-	private static Query suggestQuery(Query query, String field) throws ParseException, IOException {
+	private static Query suggestQuery(Query query, String field)
+			throws ParseException, IOException {
 
 		StringTokenizer tokenizer = new StringTokenizer(query.toString(field));
 		String word;
 		StringBuilder builder = new StringBuilder();
-		String[] modifiers = new String[]  { "+", "-", "\"" };
-		
+		String[] modifiers = new String[] { "+", "-", "\"" };
+
 		while (tokenizer.hasMoreTokens()) {
 			Character headModifier = null;
 			Character tailQuotMark = null;
@@ -301,6 +327,29 @@ public class Searcher {
 		}
 	}
 
+	private static void moreLikeThis(Reader target, int hitsPerPage, int docId) throws IOException{
+//		IndexReader ir = ...		reader;
+
+//				 IndexSearcher is = ...		searcher;
+
+				 System.out.println("MORE LIKE THIS");
+				 MoreLikeThis mlt = new MoreLikeThis(reader);
+				 mlt.setAnalyzer(analyzer);
+//				 Query query = mlt.like(target, FIELD);
+				 Query query = mlt.like(docId);	
+
+				 TopDocs results = searcher.search(query, 5);
+				 ScoreDoc[] hits = results.scoreDocs;
+				 System.out.println("Number of more like this: "+hits.length);
+				 for(int i = 0; i< hits.length; i++){
+						int localDocId = hits[i].doc;
+						Document doc = searcher.doc(localDocId);
+						String path = doc.get("path");
+						System.out.println(path);
+				 }
+				 // now the usual iteration thru 'hits' - the only thing to watch for is to make sure
+				 //you ignore the doc if it matches your 'target' document, as it should be similar to itself
+	}
 	// simple method to navigate the results in the console.
 	// Also responsible for listing the results.
 
