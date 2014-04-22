@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +37,8 @@ public class Searcher {
 
 	private static final String INDEX_PATH = "C:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\web_app_raw\\lucene\\index\\";
 	private static final String DICTIONARY_PATH = "C:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\web_app_raw\\lucene\\spellchecker\\";
+//	private static final String INDEX_PATH = "C:\\Programmi\\Apache Software Foundation\\Tomcat 7.0\\webapps\\web_app_raw\\lucene\\index\\";
+//	private static final String DICTIONARY_PATH = "C:\\Programmi\\Apache Software Foundation\\Tomcat 7.0\\webapps\\web_app_raw\\lucene\\spellchecker\\";
 	private static final float SCORE_THRESHOLD = 0.5f;
 	private static final String FIELD = "contents";
 
@@ -127,7 +131,7 @@ public class Searcher {
 			DocumentResult docRes = new DocumentResult();
 			int docId = hits[i].doc;
 			Document doc = searcher.doc(docId);
-
+			docRes.setRelatedDocument(moreLikeThis(3, docId));
 			String shortPath = doc.get("shortPath");
 			if (shortPath != null) {
 				docRes.setRelativePath(shortPath);
@@ -147,10 +151,7 @@ public class Searcher {
 			}
 			docResArray[i] = docRes;
 		}
-		int docId = hits[0].doc;
-		Document doc = searcher.doc(docId);
-		Reader target = doc.getField("contents").readerValue();
-		moreLikeThis(target, 10, docId);
+
 		return docResArray;
 	}
 
@@ -327,28 +328,42 @@ public class Searcher {
 		}
 	}
 
-	private static void moreLikeThis(Reader target, int hitsPerPage, int docId) throws IOException{
-//		IndexReader ir = ...		reader;
+	private static List<DocumentResult> moreLikeThis(int numberOfResult,
+			int docId) throws IOException {
+		// IndexReader ir = ... reader;
 
-//				 IndexSearcher is = ...		searcher;
-
-				 System.out.println("MORE LIKE THIS");
-				 MoreLikeThis mlt = new MoreLikeThis(reader);
-				 mlt.setAnalyzer(analyzer);
-//				 Query query = mlt.like(target, FIELD);
-				 Query query = mlt.like(docId);	
-
-				 TopDocs results = searcher.search(query, 5);
-				 ScoreDoc[] hits = results.scoreDocs;
-				 System.out.println("Number of more like this: "+hits.length);
-				 for(int i = 0; i< hits.length; i++){
-						int localDocId = hits[i].doc;
-						Document doc = searcher.doc(localDocId);
-						String path = doc.get("path");
-						System.out.println(path);
-				 }
-				 // now the usual iteration thru 'hits' - the only thing to watch for is to make sure
-				 //you ignore the doc if it matches your 'target' document, as it should be similar to itself
+		// IndexSearcher is = ... searcher;
+		List<DocumentResult> relatedResults = new LinkedList<DocumentResult>();
+		System.out.println("MORE LIKE THIS");
+		MoreLikeThis mlt = new MoreLikeThis(reader);
+		mlt.setAnalyzer(analyzer);
+		Query query = mlt.like(docId);
+		TopDocs results = searcher.search(query, numberOfResult);
+		ScoreDoc[] hits = results.scoreDocs;
+		for (int i = 0; i < hits.length; i++) {
+			DocumentResult docRes = new DocumentResult();
+			int relatedDocId = hits[i].doc;
+			Document doc = searcher.doc(relatedDocId);
+			String shortPath = doc.get("shortPath");
+			if (shortPath != null) {
+				docRes.setRelativePath(shortPath);
+				String title = doc.get("title");
+				if (title != null) {
+					docRes.setTitle(title);
+				}
+			}
+			relatedResults.add(docRes);
+		}
+		for(DocumentResult d: relatedResults){
+			System.out.println("Related result for "+docId);
+			System.out.println(d.getTitle()+" "+d.getRelativePath());
+		}
+		System.out.println("Fine relatedDocument");
+		return relatedResults;
+		// now the usual iteration thru 'hits' - the only thing to watch for is
+		// to make sure
+		// you ignore the doc if it matches your 'target' document, as it should
+		// be similar to itself
 	}
 	// simple method to navigate the results in the console.
 	// Also responsible for listing the results.
