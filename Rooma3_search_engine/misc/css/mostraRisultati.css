@@ -1,0 +1,107 @@
+/* space out the results area a little bit */
+body {
+	padding-left: 30px;
+	font-size: 150%;
+}
+
+#header {
+	padding-top: 20px;
+	padding-bottom: 30px;
+	border-width: 10px;
+	border-color: black;
+}
+
+#header-img-container {
+	text-align: center;
+}
+
+#header-img {
+	width: 150px;
+}
+
+#error-message {
+	color: red;
+}
+
+#message {
+	padding-bottom: 30px;
+}
+
+#results-message {
+	padding-bottom: 50px;
+}
+
+#result {
+	padding-bottom: 20px;
+}
+
+#result-highlights {
+	padding-bottom: 15px;
+}
+
+.similar-pages-title {
+	color: grey;
+	margin-left: 10px;
+}
+
+.similar-pages {
+	background-color: #E8E8E8;
+	border-radius: 10px;
+	margin-top: 5px;
+}
+
+.table {
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%;
+}
+
+.table>tbody>tr>td {
+	border-top: 0px;
+}
+
+.tablecell {
+    text-align: center;
+}
+
+#result-title {
+	font-size: 110%;
+	font-weight: bold;
+	padding-bottom: 10px;
+}
+
+.if-container-head {
+	max-width: 57px;
+	display: inline-block;
+}
+
+.if-container-o,
+.if-container-head,
+.if-container-tail {
+	position: relative;
+	bottom: 0;
+}
+
+.if-container-o {
+	max-width: 40px;
+	display: inline-block;
+	text-align: center;
+}
+
+.if-container-tail {
+	max-width: 161px;
+	display: inline-block;
+}
+
+.footer-paging {
+	height: 55px;	
+}
+
+.curDiv {
+	width:10px;
+	background-color: black;
+}
+
+.if-img {
+	width: 100%;
+}
