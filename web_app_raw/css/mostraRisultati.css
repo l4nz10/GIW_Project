@@ -1,20 +1,31 @@
 /* space out the results area a little bit */
 body {
-	font-size: 200%;
+	padding-left: 30px;
+	font-size: 150%;
 	background-color: #E8E8E8;
 }
 
-#message-area {
-	padding-top: 50px;
-	padding-left: 50px;
+#header {
+	padding-top: 20px;
+	padding-bottom: 30px;
+	border-width: 10px;
+	border-color: black;
+}
+
+#header-img {
+	width: 150px;
 }
 
 #message {
-	padding-bottom: 50px;
+	padding-bottom: 30px;
 }
 
 #results-message {
 	padding-bottom: 50px;
+}
+
+#results-area {
+	padding-bottom: 30px;
 }
 
 #result {
@@ -27,6 +38,38 @@ body {
 	padding-bottom: 10px;
 }
 
+.if-container-head {
+	max-width: 57px;
+	display: inline-block;
+}
+
+.if-container-o,
+.if-container-head,
+.if-container-tail {
+	position: relative;
+	bottom: 0;
+}
+
+.if-container-o {
+	max-width: 40px;
+	display: inline-block;
+	text-align: center;
+}
+
+.if-container-tail {
+	max-width: 161px;
+	display: inline-block;
+}
+
 .footer-paging {
 	height: 55px;	
+}
+
+.curDiv {
+	width:10px;
+	background-color: black;
+}
+
+.if-img {
+	width: 100%;
 }
