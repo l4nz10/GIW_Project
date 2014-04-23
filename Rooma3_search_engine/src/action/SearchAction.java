@@ -14,7 +14,6 @@ public class SearchAction implements Action{
 		ResultsOfSearch risultatoService = (ResultsOfSearch) facadeSearch.service();
 		
 		if (risultatoService != null){
-			System.out.println("ROS IN SEARCHACTION: "+risultatoService.getSuggestedQuery());
 			request.getSession().setAttribute("risultato", (ResultsOfSearch) risultatoService);
 			return "OK";
 		} else {

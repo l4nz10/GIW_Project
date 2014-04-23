@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.*;
 
-import resource.ResultsOfSearch;
 import helper.*;
 import action.*;
 

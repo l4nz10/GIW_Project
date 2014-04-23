@@ -33,8 +33,8 @@ import org.apache.lucene.util.Version;
 
 public class Searcher {
 
-	static final String INDEX_PATH = "D:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\ProgettoGIW\\lucene\\index\\";
-	static final String DICTIONARY_PATH = "D:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\ProgettoGIW\\lucene\\spellchecker\\";
+	static final String INDEX_PATH = "C:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\webapp\\lucene\\index\\";
+	static final String DICTIONARY_PATH = "C:\\Program Files\\Apache Software Foundation\\Tomcat 7.0\\webapps\\webapp\\lucene\\spellchecker\\";
 	private final float SCORE_THRESHOLD = 0.5f;
 	private final String FIELD = "contents";
 	
@@ -45,11 +45,19 @@ public class Searcher {
 	private  IndexSearcher luceneSearcher;
 	private  QueryParser parser;
 	private ResultsOfSearch ros;
+	private boolean indexExist;
 
 	public Searcher(String query, int hitsPerPage) throws IOException {
 		this.hitsPerPage = hitsPerPage;
 		this.queryString = query;
-		reader = DirectoryReader.open(FSDirectory.open(new File(INDEX_PATH)));
+		//check if already exist index directory
+		File f = new File(INDEX_PATH);
+		if(!f.exists())
+			 indexExist = IndexFiles.createIndex();
+		else
+			indexExist = true;
+		
+		reader = DirectoryReader.open(FSDirectory.open(f));
 		luceneSearcher = new IndexSearcher(reader);
 		analyzer = new StandardAnalyzer(Version.LUCENE_47);
 		parser = new QueryParser(Version.LUCENE_47, FIELD, analyzer);
@@ -57,7 +65,8 @@ public class Searcher {
 	}
 
 	public ResultsOfSearch search(boolean forced) throws Exception {
-		
+		if(!indexExist)
+			return null;
 		try {	
 				ros.setForcedSearch(forced);
 				Query query = parser.parse(queryString);
@@ -203,7 +212,6 @@ public class Searcher {
 	
 	private List<DocumentResult> moreLikeThis(int numberOfResult, int docId) throws IOException {
 		List<DocumentResult> relatedResults = new LinkedList<DocumentResult>();
-		System.out.println("MORE LIKE THIS");
 		MoreLikeThis mlt = new MoreLikeThis(reader);
 		mlt.setAnalyzer(analyzer);
 		Query query = mlt.like(docId);
@@ -223,11 +231,6 @@ public class Searcher {
 			}
 			relatedResults.add(docRes);
 		}
-		for(DocumentResult d: relatedResults){
-			System.out.println("Related result for "+docId);
-			System.out.println(d.getTitle()+" "+d.getRelativePath());
-		}
-		System.out.println("Fine relatedDocument");
 		return relatedResults;
 	}
 }

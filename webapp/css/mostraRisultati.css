@@ -30,6 +30,10 @@ body {
 	padding-bottom: 30px;
 }
 
+#results-area {
+	padding-bottom: 20px;
+}
+
 #results-message {
 	padding-bottom: 50px;
 }
@@ -103,6 +107,10 @@ body {
 .if-container-tail {
 	max-width: 161px;
 	display: inline-block;
+}
+
+#footer {
+	margin-bottom: 30px;
 }
 
 .footer-paging {
