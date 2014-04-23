@@ -1,14 +1,13 @@
 /* space out the results area a little bit */
 body {
-	padding-left: 30px;
 	font-size: 150%;
 }
 
 #header {
-	padding-top: 20px;
-	padding-bottom: 30px;
-	border-width: 10px;
-	border-color: black;
+	padding-top: 25px;
+	padding-bottom: 60px;
+	margin-bottom: 20px;
+	background-color: #E8E8E8;
 }
 
 #header-img-container {
@@ -17,6 +16,10 @@ body {
 
 #header-img {
 	width: 150px;
+}
+
+#main-area {
+	padding-left: 30px;
 }
 
 #error-message {
@@ -31,6 +34,11 @@ body {
 	padding-bottom: 50px;
 }
 
+#result-t {
+	font-size: 130%;
+	padding-bottom: 10px;
+}
+
 #result {
 	padding-bottom: 20px;
 }
@@ -40,7 +48,7 @@ body {
 }
 
 .similar-pages-title {
-	color: grey;
+	color: #A0A0A0;
 	margin-left: 10px;
 }
 
@@ -68,6 +76,10 @@ body {
 	font-size: 110%;
 	font-weight: bold;
 	padding-bottom: 10px;
+}
+
+#footer {
+	margin-bottom: 30px;
 }
 
 .if-container-head {

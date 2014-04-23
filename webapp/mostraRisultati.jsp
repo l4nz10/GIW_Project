@@ -13,25 +13,29 @@
 		<link href="css/mostraRisultati.css" rel="stylesheet">
 	</head>
 	<body>
-		<div id="header"class="col-lg-9">
-			<div id="header-img-container"class="col-lg-2">
-				<img id="header-img" src="media/search_header_img.png">	
-			</div>
-			<div class="col-lg-6">
-				<form method="get" action="search">
-					<div class="input-group">
-		      			<input type="text" class="form-control" name="query">
-		      			<span class="input-group-btn">
-		        			<button class="btn btn-primary" type="submit">Search</button>
-	      				</span>
-	    			</div>
-	    		</form>
+		<div id="header">
+			<div  class="col-lg-9">
+				<div id="header-img-container"class="col-lg-2">
+					<a href="index.jsp">
+						<img id="header-img" src="media/search_header_img.png">	
+					</a>
+				</div>
+				<div class="col-lg-7">
+					<form method="get" action="search">
+						<div class="input-group">
+			      			<input type="text" class="form-control" name="query">
+			      			<span class="input-group-btn">
+			        			<button class="btn btn-primary" type="submit">Search</button>
+		      				</span>
+		    			</div>
+		    		</form>
+				</div>
 			</div>
   		</div>
 
 		<%@page import="javax.servlet.*, java.util.*, resource.*, java.net.*"					%>
 		<% ResultsOfSearch ros = (ResultsOfSearch) session.getAttribute("risultato");			%>
-		<% int numeroPagina = (Integer) session.getAttribute("paginaCorrente"); 				%>
+		<% Integer numeroPagina = (Integer) session.getAttribute("paginaCorrente"); 				%>
 		<div id="main-area" class="col-md-12">
 			<div id="message" class="col-md-12">
 		<%		if (ros == null) {																%>
@@ -59,7 +63,7 @@
 		<%						if (docs[numeroPagina][i] != null) {																				%>
 		<%							DocumentResult doc = docs[numeroPagina][i];																		%>
 									<div id="result">
-										<div id="result-title">
+										<div id="result-t">
 											<a href="<%=doc.getRelativePath()%>"><%=doc.getTitle()%></a>
 										</div>
 										<div id="result-highlights">
